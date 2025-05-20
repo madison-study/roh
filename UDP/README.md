@@ -99,47 +99,92 @@ if (n < 0) {
 
 `recvfrom()` function copy UDP packet to buffer and return sender's address information
 
-## UDP
+## 🌐 UDP (User Datagram Protocol)
 
-**UDP(User Datagram Protocol)** is connectionless protocol, which is designed for fast data transfer
+**UDP** is a **connectionless** transport-layer protocol designed for fast and lightweight data transmission.  
+Unlike TCP, it does not guarantee delivery, order, or error checking — making it ideal for real-time applications like video streaming or online gaming.
+
+---
 
 ### 🔄 Work Flow
 
-* **sender**
+#### 📨 Sender (Client Side)
 
-1. create socket `socket(AF_INET, SOCK_DGRAM, 0)`
+1. **Create Socket**
+   ```c
+   int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+   ```
 
 2. set server address struct
 
 3. send message
 
-* **receiver**
+#### 📥 Receiver (Server Side)
 
-파일 디스크립터 (file descriptor)
-프로세스가 소켓을 생성하면, 일반 파일처럼 파일 디스크립터(fd) 를 통해 소켓을 참조합니다. 예를 들어:
+1. create socket
+    ```c
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    ```
 
-int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-위에서 sockfd는 파일 디스크립터이며, 일반 파일에서 open()이 반환하는 것과 동일한 방식으로 사용됩니다.
+2. bind
 
-read/write 사용 가능
-소켓은 read(), write() 또는 send(), recv() 등을 사용해 입출력이 가능합니다.
+    Bind the socket to a local IP and port:
+    
+    ```c
+    bind(sockfd, (struct sockaddr*)&local_addr, sizeof(local_addr));
+    ```
 
-/proc/[pid]/fd/ 경로에서 확인 가능
-리눅스에서는 특정 프로세스가 열고 있는 파일 디스크립터를 /proc/[pid]/fd/ 경로에서 확인할 수 있습니다. 여기에 소켓도 링크로 나타납니다:
+3. Receive MSG
 
-ls -l /proc/1234/fd/
-lrwx------ 1 user user 64 May 20 00:00 3 -> 'socket:[12345]'
-bind()에서 파일 경로 사용 (Unix domain socket)
-TCP/IP 소켓은 IP와 포트를 사용하지만, 유닉스 도메인 소켓은 실제 파일 시스템 경로를 사용합니다:
+### Error Detection in UDP
+
+1. UDP Checksum
+    UDP provides a checksum field to detect data corruption.
+
+    Location: 4th field in the UDP header (16 bits total)
+
+    Coverage: UDP header + data + parts of the IP header (pseudo header)
+
+    Functionality:
+    The sender calculates the checksum before transmission and inserts it into the header.
+
+    The receiver recalculates the checksum on arrival; if the value differs, the packet is considered corrupted.
+
+    Optional in IPv4, but mandatory in IPv6.
+
+2. Detection Only, No Recovery
+    UDP can detect errors, but it cannot recover from them.
+
+    Corrupted packets are discarded immediately.
+
+    No retransmission or correction is provided by UDP.
+
+    Applications must implement error-handling, retransmission, and acknowledgment logic if needed.
+
+3. Pseudo Header
+    To increase reliability, UDP includes a pseudo header in the checksum calculation, which contains selected IP layer fields.
+
+    Pseudo Header includes:
+    Source IP address
+
+    Destination IP address
+
+    Protocol number (UDP = 17)
+
+    UDP length
+
+    This helps detect errors like incorrect destination address during transmission.
+
+#### 📌 Summary Table
+
+| Item                      | UDP                      |
+| ------------------------- | ------------------------ |
+| Checksum                  | Yes (16-bit)             |
+| Error Detection           | Yes                      |
+| Error Recovery            | No                       |
+| Guaranteed Delivery       | No                       |
+| Retransmission            | No                       |
+| Handling Missing Packets  | Delegated to Application |
+| Checksum Required in IPv6 | Yes                      |
 
 
-struct sockaddr_un addr;
-addr.sun_family = AF_UNIX;
-strcpy(addr.sun_path, "/tmp/mysocket");
-
-bind(sockfd, (struct sockaddr*)&addr, sizeof(addr));
-이 경우 /tmp/mysocket는 실제로 파일 시스템에 나타나는 소켓 파일입니다.
-
-## UDP
-
-UDP protocol
