@@ -13,7 +13,7 @@ UdpClient::UdpClient(const std::string &ip, uint16_t port)
         throw std::runtime_error("Failed to create socket");
     }
 
-    std::memset(&serverAddr, 0, sizeof(serverAddr));
+    memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(port);
 

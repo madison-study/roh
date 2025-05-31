@@ -14,7 +14,7 @@ UdpServer::UdpServer(uint16_t port)
     }
     last_seq = UINT32_MAX;
     // 서버 주소 초기화
-    std::memset(&serverAddr, 0, sizeof(serverAddr));
+    memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY; // 모든 IP로부터 수신 허용
     serverAddr.sin_port = htons(port);
@@ -36,7 +36,7 @@ void UdpServer::receiveMessage()
     sockaddr_in clientAddr;
     socklen_t clientLen = sizeof(clientAddr);
 
-    std::memset(buffer, 0, BUFFER_SIZE);
+    memset(buffer, 0, BUFFER_SIZE);
     ssize_t received = recvfrom(sock, buffer, BUFFER_SIZE - 1, 0,
                                 (sockaddr *)&clientAddr, &clientLen);
     if (received < 0)
