@@ -9,12 +9,14 @@ class TCPServer
 private:
     int sock;
     sockaddr_in serverAddr;
-    static const int BUFFER_SIZE = 4024;
+    static const int BUFFER_SIZE = 1024;
     uint32_t last_seq;
     void handleClient(int clientSock, sockaddr_in clientAddr);
+    void handleClientPrefix(int clientSock, sockaddr_in clientAddr);
+
 public:
     TCPServer(uint16_t port);
-    void receiveMessage();
+    void receiveMessage(bool isPrefix);
     ~TCPServer();
 };
 

@@ -31,13 +31,37 @@ TCPClient::TCPClient(const std::string &ip, uint16_t port)
     }
 }
 
-void TCPClient::sendMessage(const std::string &message)
+void TCPClient::sendMessage(const std::string &message, const bool isPrefix)
 {
-    ssize_t sent = send(sock, message.c_str(), message.length(), 0);
-    if (sent < 0)
+    if (!isPrefix)
     {
-        perror("Send failed");
-        throw std::runtime_error("Failed to send message");
+        ssize_t sent = send(sock, message.c_str(), message.length(), 0);
+        if (sent < 0)
+        {
+            perror("Send failed");
+            throw std::runtime_error("Failed to send message");
+        }
+        return;
+    }
+
+    uint32_t len = htonl(message.length()); // 메시지 길이를 네트워크 바이트 순서로 변환
+    std::string full_msg(reinterpret_cast<char *>(&len), sizeof(len));
+    full_msg += message;
+
+    std::cout << "[TCPClient] Sending message (" << message.length() << " bytes): " << message << std::endl;
+
+    ssize_t total_sent = 0;
+    ssize_t to_send = full_msg.length();
+
+    while (total_sent < to_send)
+    {
+        ssize_t sent = send(sock, full_msg.c_str() + total_sent, to_send - total_sent, 0);
+        if (sent <= 0)
+        {
+            perror("Send failed");
+            throw std::runtime_error("Failed to send message");
+        }
+        total_sent += sent;
     }
 }
 

@@ -41,6 +41,63 @@ after this data transfer begins
 | Speed    | fast                  | slow                  |
 | usage | file transfer, web browsing  | streaming, game, voip     |
 
+## 🏄 TCP is Stream
+
+Client send: "12457810111314" but 
+
+Server can show 
+```bash
+Received from 127.0.0.1:56600 -> 12
+Received from 127.0.0.1:56600 -> 457810111314
+```
+
+> TCP guarantees order of stream, but does not guarantee size of chunk
+
+user's responsibility to set boundary (eg: multipart form-data, size prefix)
+
+### Prefix
+
+attach size header to message  [ size ] [ message ]
+
+## 🕒 Timeout
+
+### Connect
+
+if server does not answers `connect()` TCP waits and retries -> depends on OS setting
+
+Example on Linux to control this:
+
+```bash
+/proc/sys/net/ipv4/tcp_syn_retries   # Default: 6 retries
+```
+
+### Data Transmission
+
+* send() usually returns immediately once the data is copied to the OS buffer.
+
+* If the send buffer is full, send() can block or fail depending on socket settings.
+
+* recv() blocks if no data is available unless you set a timeout (SO_RCVTIMEO).
+
+Automatic retransmission
+* TCP automatically retransmits lost packets inside the kernel if ACKs are not received.
+
+* This retransmission is invisible to your application — it just experiences delays or connection drop.
+
+Linux controls retransmissions with:
+
+```bash
+/proc/sys/net/ipv4/tcp_retries2   # Default: 15 retries (can mean several minutes)
+```
+
+After this retry limit is reached without success, TCP closes the connection (RST).
+
+### Keepalive
+
+TCP keepalive probes are sent when the connection is idle, to check if the peer is alive.
+
+If keepalive probes fail after a number of retries, TCP closes the connection.
+
 ## C++ code
 
 ### Connection

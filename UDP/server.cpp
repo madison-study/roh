@@ -1,6 +1,6 @@
 #include <iostream>
 #include <arpa/inet.h>
-#include <cstring> 
+#include <cstring>
 #include <unistd.h>
 #include "server.h"
 
@@ -64,15 +64,15 @@ void UdpServer::receiveMessage()
         if (seq > last_seq + 1)
         {
             std::cout << "Packet loss detected! Lost "
-                      << (seq - last_seq - 1) << " packets.\n";
+                      << (seq - last_seq - 1) << " packets.\n\n";
         }
         last_seq = seq;
     }
 
-    std::cout << "Received from "
+    std::cout << "\rReceived from "
               << inet_ntoa(clientAddr.sin_addr)
               << ":" << ntohs(clientAddr.sin_port)
-              << " -> " << buffer << std::endl;
+              << " -> " << buffer << std::flush;
 }
 
 UdpServer::~UdpServer()

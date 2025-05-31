@@ -11,7 +11,7 @@ private:
 
 public:
     TCPClient(const std::string& ip, uint16_t port);
-    void sendMessage(const std::string& message);
+    void sendMessage(const std::string& message, const bool isPrefix);
     ~TCPClient();
 };
 

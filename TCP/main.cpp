@@ -6,7 +6,7 @@
 int main()
 {
     int choice;
-    std::cout << "Enter 1 to run as client, 2 to run as server: ";
+    std::cout << "Enter 1 to run as client, 2 to run as server(no prefix), 3 to run as server(prefix): ";
     std::cin >> choice;
 
     if (choice == 1)
@@ -25,17 +25,20 @@ int main()
         uint32_t seq = 0;
         while (true)
         {
-            std::cout << "Enter message(1: normal 2: exception) to send (or 'exit' to quit): ";
+            std::cout << "Enter message(1: prefix 2: no prefix) to send (or 'exit' to quit): ";
             std::getline(std::cin, message);
 
             if (message == "exit")
                 break;
 
+            if (message == "kill")
+                exit(0);
+
             if (message == "1")
             {
                 for (int i = 0; i < 15; i++)
                 {   
-                    client.sendMessage(std::to_string(i));
+                    client.sendMessage(std::to_string(i),1);
                 }
             }
 
@@ -43,13 +46,12 @@ int main()
             {
                 for (int i = 0; i < 15; i++)
                 {   
-                    if(i % 3 == 0) {seq++; continue;}
-                    client.sendMessage(std::to_string(i));
+                    client.sendMessage(std::to_string(i),0);
                 }
             }
         }
     }
-    else if (choice == 2)
+    else if (choice == 2 || choice == 3)
     {
         uint16_t port;
         std::cout << "Enter port to listen on: ";
@@ -59,7 +61,7 @@ int main()
 
         while (true)
         {
-            server.receiveMessage();
+            server.receiveMessage(choice % 2);
         }
     }
     else

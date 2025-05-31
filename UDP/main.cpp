@@ -25,7 +25,7 @@ int main()
         uint32_t seq = 0;
         while (true)
         {
-            std::cout << "Enter message to send (or 'exit' to quit): ";
+            std::cout << "Enter message(1: normal 2: exception) to send (or 'exit' to quit): ";
             std::getline(std::cin, message);
 
             if (message == "exit")
@@ -33,8 +33,17 @@ int main()
 
             if (message == "1")
             {
-                for (int i = 0; i < 100; i++)
-                {
+                for (int i = 0; i < 15; i++)
+                {   
+                    client.sendMessage(std::to_string(seq++) + ":" + std::to_string(i));
+                }
+            }
+
+            if (message == "2")
+            {
+                for (int i = 0; i < 15; i++)
+                {   
+                    if(i % 3 == 0) {seq++; continue;}
                     client.sendMessage(std::to_string(seq++) + ":" + std::to_string(i));
                 }
             }
