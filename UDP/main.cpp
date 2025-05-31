@@ -33,7 +33,7 @@ int main()
 
             if (message == "1")
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 100; i++)
                 {
                     client.sendMessage(std::to_string(seq++) + ":" + std::to_string(i));
                 }
