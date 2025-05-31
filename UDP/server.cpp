@@ -1,5 +1,6 @@
 #include <iostream>
 #include <arpa/inet.h>
+#include <cstring> 
 #include <unistd.h>
 #include "server.h"
 
