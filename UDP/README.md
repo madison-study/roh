@@ -116,8 +116,25 @@ Unlike TCP, it does not guarantee delivery, order, or error checking — making 
    ```
 
 2. set server address struct
+    ```c
+    std::memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(port);
+    ```
 
 3. send message
+    ```c
+    void UdpClient::sendMessage(const std::string &message)
+    {
+        ssize_t sent = sendto(sock, message.c_str(), message.length(), 0,
+                            (sockaddr *)&serverAddr, sizeof(serverAddr));
+        if (sent < 0)
+        {
+            perror("Send failed");
+            throw std::runtime_error("Failed to send message");
+        }
+    }
+    ```
 
 #### 📥 Receiver (Server Side)
 
@@ -126,7 +143,16 @@ Unlike TCP, it does not guarantee delivery, order, or error checking — making 
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     ```
 
-2. bind
+2. set server address struct
+
+    ```c
+    std::memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY; // 모든 IP로부터 수신 허용
+    serverAddr.sin_port = htons(port);
+    ```
+
+3. bind
 
     Bind the socket to a local IP and port:
     
@@ -134,7 +160,31 @@ Unlike TCP, it does not guarantee delivery, order, or error checking — making 
     bind(sockfd, (struct sockaddr*)&local_addr, sizeof(local_addr));
     ```
 
-3. Receive MSG
+4. Receive MSG
+    ```c
+    void UdpServer::receiveMessage()
+    {
+        char buffer[BUFFER_SIZE];
+        sockaddr_in clientAddr;
+        socklen_t clientLen = sizeof(clientAddr);
+
+        std::memset(buffer, 0, BUFFER_SIZE);
+        ssize_t received = recvfrom(sock, buffer, BUFFER_SIZE - 1, 0,
+                                    (sockaddr *)&clientAddr, &clientLen);
+        if (received < 0)
+        {
+            perror("recvfrom failed");
+            return;
+        }
+
+        buffer[received] = '\0'; // null-terminate the string
+        std::cout << "Received from "
+                << inet_ntoa(clientAddr.sin_addr)
+                << ":" << ntohs(clientAddr.sin_port)
+                << " -> " << buffer << std::endl;
+    }
+    ```
+
 
 ### Error Detection in UDP
 
