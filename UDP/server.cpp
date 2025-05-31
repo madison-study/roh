@@ -69,10 +69,10 @@ void UdpServer::receiveMessage()
         last_seq = seq;
     }
 
-    // std::cout << "Received from "
-    //           << inet_ntoa(clientAddr.sin_addr)
-    //           << ":" << ntohs(clientAddr.sin_port)
-    //           << " -> " << buffer << std::endl;
+    std::cout << "Received from "
+              << inet_ntoa(clientAddr.sin_addr)
+              << ":" << ntohs(clientAddr.sin_port)
+              << " -> " << buffer << std::endl;
 }
 
 UdpServer::~UdpServer()
