@@ -38,7 +38,7 @@ after this data transfer begins
 | ----- | ----------------------- | ------------------- |
 | Connection | Connection-based | Connectionless |
 | Reliabilty   | O                      | X             |
-| Speed    | fast                  | slow                  |
+| Speed    | slow                  | fast                  |
 | usage | file transfer, web browsing  | streaming, game, voip     |
 
 ## 🏄 TCP is Stream
