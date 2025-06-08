@@ -37,7 +37,9 @@
         "tuple": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "array": "cpp",
+        "vector": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
