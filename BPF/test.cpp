@@ -9,7 +9,7 @@ int main() {
         perror("prctl");
         return 1;
     }
-
+    // pid 확인 (ps aux | grep '^roh')
     // 변경된 이름 확인 (ps -o comm -p <pid>)
     while(1) {
         sleep(10);
