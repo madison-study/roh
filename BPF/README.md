@@ -120,3 +120,26 @@ char *self[] = {
 | `hald-runner`              | HAL 하드웨어 추상화 데몬 | 요즘은 사용 안되지만 남아 있을 수 있음 |
 | `auditd -n`                | 보안 감사 데몬        | 권한 있는 데몬, 의심 안 받음      |
 | `systemd-journald`         | 시스템 로그 기록       | 완전한 핵심 프로세스처럼 보임       |
+
+
+```cpp
+#include <stdio.h>
+#include <sys/prctl.h>
+#include <string.h>
+
+int main() {
+    const char *new_name = "unsuspicious-name";
+    
+    if (prctl(PR_SET_NAME, (unsigned long)new_name, 0, 0, 0) == -1) {
+        perror("prctl");
+        return 1;
+    }
+    // pid 확인 (ps aux | grep '^roh')
+    // 변경된 이름 확인 (ps -o comm -p <pid>)
+    while(1) {
+        sleep(10);
+    }
+
+    return 0;
+}
+```
