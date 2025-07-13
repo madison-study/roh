@@ -1,2 +1,8 @@
 *.out
 *.env
+
+API-Practice/node_modules/
+
+API-Practice/.env.local
+
+API-Practice/.logs/

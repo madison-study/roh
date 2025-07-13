@@ -142,6 +142,24 @@ CREATE INDEX idx_users_email ON users(email);
 
 쓰기 많은 시스템은 인덱스 최소화 고려
 
+* What if there are too many indexes
+
+> INSERT, UPDATE, DELETE 시 모든 인덱스도 동시에 갱신됨
+> TPS(초당 트랜잭션 수) 급감 → 대량 로그 수집 시스템에서 병목 발생
+> 로그 테이블처럼 쓰기 중심(Write-heavy) 환경에서는 오히려 성능 악화
+
+| 상황            | 인덱스 남용 위험              |
+| ------------- | ---------------------- |
+| 인덱스가 너무 많음    | 쓰기 성능 저하 (모두 유지해야 하므로) |
+| 사용되지 않는 인덱스   | 디스크 낭비 + 유지비 발생        |
+| 복합 인덱스 순서 문제  | 일부 쿼리에만 유효             |
+| 함수가 포함된 WHERE | 인덱스 무효화                |
+| 잦은 업데이트 컬럼    | 인덱스 갱신 비용 ↑            |
+
+* 인덱스는 반드시 쿼리 패턴을 분석하고, 사용 빈도를 고려해 최소화
+* EXPLAIN 명령어로 실제 인덱스 사용 여부를 확인할 것
+* 쓰기 많은 테이블은 인덱스 최소화가 핵심
+
 ---
 
 ### 9. 👨‍💻 실무에서의 SQL 활용
@@ -162,6 +180,33 @@ CREATE INDEX idx_users_email ON users(email);
 | Relationship    | JOIN, FOREIGN KEY                     |
 | Performance     | INDEX                                 |
 | Data Integrity  | NOT NULL, UNIQUE, CHECK               |
+
+## Injection Prevention
+
+### ❌ 취약한 예 (Node.js 예시):
+W
+```sql
+const name = req.query.name;
+const query = `SELECT * FROM users WHERE name = '${name}'`;
+```
+### ✅ 안전한 방식: 값은 파라미터로 처리
+
+```sql
+const name = req.query.name;
+const query = 'SELECT * FROM users WHERE name = $1';
+const values = [name];
+
+const result = await pool.query(query, values);
+```
+
+## 분리된 아키텍처
+
+| 계층                   | 역할                                        |
+| -------------------- | ----------------------------------------- |
+| **Controller**       | 요청/응답 처리 (`req`, `res`)                   |
+| **Service**          | 비즈니스 로직 (`if`, `try`, `validate`, etc.)   |
+| **Repository**       | DB 접근 로직만 (`query`, `insert`, etc.)       |
+| **Model (optional)** | Type / Interface 정의 (`User`, `Product` 등) |
 
 
 # POSTGRESQL

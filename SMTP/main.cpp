@@ -60,7 +60,7 @@ void send_email() {
     load_env_file("local.env");
     const char* pwd = getenv("GOOGLE");
     std::cout << pwd;
-    TLSClient client("google.com", 465);  // use port 587 if doing STARTTLS over plain TCP
+    TLSClient client("google.com", 465);  // use port 587 if doing STARTTLS over plain TCP 
 
     auto recv = client.recvMessage();
     std::cout << recv;
