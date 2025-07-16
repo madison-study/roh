@@ -8,7 +8,7 @@ export const getUsers = async (req: Request, res: Response) => {
 };
 
 export const getUser = async (req: Request, res: Response) => {
-  const user = await userModel.getUserById(Number(req.params.id));
+  const user = await userModel.getUserByEmail(req.params.email);
   if (!user) return res.status(404).json({ message: 'User not found' });
   res.json(user);
 };
@@ -29,3 +29,4 @@ export const removeUser = async (req: Request, res: Response) => {
   const deletedUser = await userModel.deleteUser(Number(req.params.id));
   res.json({ message: 'User deleted', user: deletedUser });
 };
+

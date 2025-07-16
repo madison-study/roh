@@ -43,5 +43,5 @@ export const combinedLogger = morgan("combined", {
 
 export const detailedLogger = morgan(detailedFormat, {
     stream: detailedLogStream,
-    skip: (req, res) => req.method === "GET", // 예시: GET 요청은 상세 로그 제외
+    // skip: (req, res) => req.method === "GET", // 예시: GET 요청은 상세 로그 제외
 });

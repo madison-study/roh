@@ -11,15 +11,15 @@ export const getItemById = async (id: string) => {
     return res.rows[0];
 };
 
-export const addItem = async (name: string, price: number, count: number, owner: string) => {
+export const addItem = async (name: string, price: number, stock: number, owner: string) => {
     const res = await pool.query(
-        'INSERT INTO items (name, price, count, owner) VALUES ($1, $2, $3, $4) RETURNING *',
-        [name, price, count, owner]
+        'INSERT INTO items (name, price, stock, owner) VALUES ($1, $2, $3, $4) RETURNING *',
+        [name, price, stock, owner]
     );
     return res.rows[0];
 };
 
-export const updateItem = async (id: string, name: string, price: number, count: number, owner: string) => {
+export const updateItem = async (id: string, name: string, price: number, stock: number, owner: string) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
@@ -30,8 +30,8 @@ export const updateItem = async (id: string, name: string, price: number, count:
 
         // 2. 업데이트
         const update = await client.query(
-            'UPDATE items SET name = $1, price = $2, count = $3, owner = $4 WHERE id = $5 RETURNING *',
-            [name, price, count, owner, id]
+            'UPDATE items SET name = $1, price = $2, stock = $3, owner = $4 WHERE id = $5 RETURNING *',
+            [name, price, stock, owner, id]
         );
 
         await client.query('COMMIT');
