@@ -209,5 +209,24 @@ const result = await pool.query(query, values);
 | **Model (optional)** | Type / Interface 정의 (`User`, `Product` 등) |
 
 
+-----
+
+## MULTER
+
+file managing library
+
+## Content Disposition
+
+> Content-Disposition은 HTTP 응답 헤더 중 하나로, 브라우저에게 이 콘텐츠(파일)를 어떻게 처리할지를 지시하는 역할을 합니다.
+> 주로 파일 다운로드나 inline(브라우저에서 직접 열기) 여부를 결정할 때 사용됩니다.
+
+
+## stream, pipe
+
+```js
+const stream = s3.getObject(params).createReadStream();
+stream.pipe(res);
+```
+
 # POSTGRESQL
 

@@ -9,6 +9,8 @@ import { RotatingFileStream, createStream } from "rotating-file-stream";
 import path from "path";
 import { detailedLogger, combinedLogger } from './middlewares/logger';
 import purchaseRoutes from './routes/purchaseRoutes';
+import uploadRoutes from './routes/uploadRoutes';
+import fetchFilesRoutes from './routes/fetchFilesRoutes';
 
 dotenv.config();
 const app = express();
@@ -22,6 +24,8 @@ app.use('/items', itemRoutes);
 app.use('/deposit', depositRoutes);
 app.use('/auth', authRoutes);
 app.use('/purchase', purchaseRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/fetch-file', fetchFilesRoutes);
 
 app.listen(3000, () => {
   console.log('Server running on port 3000');

@@ -8,7 +8,7 @@ export const getJTW = async (req: Request, res: Response) => {
         const user = await authModel.getUserByEmail(email);
 
         if (!user) {
-            res.status(501).json({ message: 'Invalid email' });
+            res.status(401).json({ message: 'Invalid email' });
         }
         const secret = process.env.JWT_SECRET;
         if (!secret) {

@@ -27,6 +27,14 @@ export const updateUser = async (id: number, name: string, email: string, birthd
   return res.rows[0];
 };
 
+export const newFile = async (email: string, file: string) => {
+  const res = await pool.query(
+    `UPDATE users set files = files || $1 WHERE email = $2 RETURNING *`,
+    [[file], email]
+  );
+  return res.rows[0];
+}
+
 export const deleteUser = async (id: number) => {
   const res = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
   return res.rows[0];
