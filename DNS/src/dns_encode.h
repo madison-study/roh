@@ -3,11 +3,6 @@
 
 #include <stdint.h>
 
-int build_dns_query(
-    const char *domain,
-    uint8_t *buffer
-);
-
 int encode_domain(
     const char *domain,
     uint8_t *buffer
