@@ -4,6 +4,6 @@
 #define MAX_DOMAIN_LEN 256
 #define MAX_IP_LEN 16
 
-int resolve_domain(const char *domain, char *result_ip);
+int resolve_domain(const char *domain, char *result_ip, int depth);
 
 #endif

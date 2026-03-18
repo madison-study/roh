@@ -8,8 +8,9 @@
 
 #define ROOT_SERVER_IP "198.41.0.4"
 
-int resolve_domain(const char *domain, char *result_ip)
+int resolve_domain(const char *domain, char *result_ip, int depth)
 {
+    if (depth > 5) return -1;
     uint8_t query_packet[DNS_MAX_PACKET_SIZE];
     uint8_t response_packet[DNS_MAX_PACKET_SIZE];
     int response_len = 0;
@@ -35,7 +36,7 @@ int resolve_domain(const char *domain, char *result_ip)
         printf("Query Domain       : %s\n", domain);
         printf("Payload Size       : %d bytes\n", query_len);
         int ret = udp_send_query(current_server_ip, query_packet, query_len, response_packet, &response_len);
-        printf("[Debug] udp DONE\n");
+        // printf("[Debug] udp DONE\n");
         fflush(stdout);
         if (response_len <= 0)
         {
@@ -47,65 +48,49 @@ int resolve_domain(const char *domain, char *result_ip)
         dns_rr_t answers[MAX_NAMESERVERS];
         int answer_count = 0;
         nameserver_list_t ns_list;
-        memset(&ns_list, 0, sizeof(ns_list)); // 초기화 필수
-
-        printf("[Debug] Calling parse_dns_response (packet_len: %d)\n", response_len);
-        fflush(stdout);
-
-        printf("\n--- Packet Dump (%d bytes) ---\n", response_len);
-        for (int i = 0; i < response_len; i++)
-        {
-            printf("%02X ", response_packet[i]);
-            if ((i + 1) % 16 == 0)
-                printf("\n");
-            else if ((i + 1) % 8 == 0)
-                printf("  ");
-        }
-        printf("\n------------------------------\n");
+        memset(&ns_list, 0, sizeof(ns_list));
 
         if (parse_dns_response(response_packet, response_len, answers, &answer_count, &ns_list) != 0)
-        {
-            printf("[Debug] parse_dns_response returned ERROR\n");
             return -1;
-        }
 
-        printf("\n[Debug] Parse Finished. Answer: %d, NS: %d\n", answer_count, ns_list.count);
-        printf("\n================ [DNS Response Analysis] ================\n");
-        printf("  - Answer Count: %d\n", answer_count);
-        printf("  - Authority NS Count: %d\n", ns_list.count);
-        printf("========================================================\n");
-        // 4. 결과 분석 로직
-        fflush(stdout);
-        // (A) 답을 찾은 경우 (Answer Section에 A 레코드가 있음)
+        // (A) 답을 찾은 경우
         if (answer_count > 0)
         {
             uint8_t *ip = (uint8_t *)answers[0].rdata;
             sprintf(result_ip, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-            printf("[Success] Resolved: %s\n", result_ip);
             return 0;
         }
 
-        // (B) 다음 서버 정보가 있는 경우 (Authority Section에 NS가 있음)
+        // (B) 다음 서버 정보(NS)가 있는 경우
         if (ns_list.count > 0)
         {
-            // 실제 로우레벨 구현에서는 Additional Section에 있는 IP를 가져와야 합니다.
-            // 여기서는 단순화를 위해 첫 번째 네임서버의 IP가 ns_list에 채워졌다고 가정합니다.
+            // 1. Additional Section에 IP가 이미 파싱되어 있는지 확인 (Glue Record 존재 시)
             if (strlen(ns_list.servers[0].ip) > 0)
             {
                 strcpy(current_server_ip, ns_list.servers[0].ip);
-                continue; // 다음 단계 서버로 다시 루프
+                continue;
             }
             else
             {
-                // 만약 IP가 없다면? 네임서버 이름을 다시 IP로 바꿔야 하는 복잡한 상황 발생 (Glue Record 부재)
-                printf("     Error: Glue record missing for %s\n", ns_list.servers[0].name);
-                return -1;
+                // 2. Glue Record가 없는 경우 (Case A)
+                // 네임서버 이름(예: ns1.awsdns.com)의 IP를 찾기 위해 자기 자신을 재귀 호출!
+                printf("[Recursive] No Glue Record. Resolving NS: %s\n", ns_list.servers[0].name);
+
+                char ns_ip[MAX_NS_IP];
+                if (resolve_domain(ns_list.servers[0].name, ns_ip, depth + 1) == 0)
+                {
+                    // 네임서버의 IP를 알아냈으므로, 이 IP를 가지고 조회를 이어감
+                    strcpy(current_server_ip, ns_ip);
+                    continue;
+                }
+                else
+                {
+                    printf("Error: Could not resolve Nameserver IP for %s\n", ns_list.servers[0].name);
+                    return -1;
+                }
             }
         }
-
-        printf("     Error: No answer and no further nameservers.\n");
         break;
     }
-
     return -1;
 }

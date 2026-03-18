@@ -52,47 +52,6 @@ int dns_encode_domain(const char *domain, uint8_t *buffer)
     return dst_idx;
 }
 
-int dns_decode_name(const uint8_t *packet, int packet_len, int offset, char *out, int out_len)
-{
-    int i = offset;
-    int out_pos = 0;
-    int jumped = 0;
-    int jumped_offset = 0;
-    int bytes_read = 0;
-
-    while (packet[i] != 0)
-    {
-        // 압축 포인터 체크 (상위 2비트가 11인 경우)
-        if ((packet[i] & 0xC0) == 0xC0)
-        {
-            if (!jumped)
-            {
-                bytes_read = (i - offset) + 2;
-            }
-            // 포인터 값 계산 (14비트)
-            i = ((packet[i] & 0x3F) << 8) | packet[i + 1];
-            jumped = 1;
-        }
-        else
-        {
-            int len = packet[i++];
-            if (out_pos + len + 1 > out_len)
-                return -1; // 버퍼 초과
-
-            if (out_pos > 0)
-                out[out_pos++] = '.';
-            memcpy(&out[out_pos], &packet[i], len);
-            out_pos += len;
-            i += len;
-        }
-    }
-    out[out_pos] = '\0';
-
-    if (!jumped)
-        bytes_read = i - offset + 1;
-    return bytes_read; // 패킷 내에서 소모한 바이트 수 반환
-}
-
 int dns_build_query(uint8_t *buffer, const char *domain, uint16_t qtype)
 {
     dns_header_t *header = (dns_header_t *)buffer;
@@ -114,58 +73,4 @@ int dns_build_query(uint8_t *buffer, const char *domain, uint16_t qtype)
     q->qclass = htons(DNS_CLASS_IN);
 
     return sizeof(dns_header_t) + name_len + sizeof(dns_question_t);
-}
-
-int dns_parse_response(uint8_t *packet, int packet_len)
-{
-    dns_header_t *header = (dns_header_t *)packet;
-
-    // 네트워크 바이트 오더를 호스트 바이트 오더로 변환
-    uint16_t qdcount = ntohs(header->qdcount);
-    uint16_t ancount = ntohs(header->ancount);
-    uint16_t flags = ntohs(header->flags);
-
-    // 에러 체크 (RCODE 추출: 하위 4비트)
-    if ((flags & 0x000F) != 0)
-    {
-        printf("DNS Error: RCODE %d\n", flags & 0x000F);
-        return -1;
-    }
-
-    int offset = sizeof(dns_header_t);
-    char name[256];
-
-    // 1. 질문 섹션 처리 (단순히 건너뜀)
-    for (int i = 0; i < qdcount; i++)
-    {
-        int read = dns_decode_name(packet, packet_len, offset, name, sizeof(name));
-        offset += read; // 이름 길이만큼 이동
-        offset += 4;    // qtype(2) + qclass(2) 건너뜀
-    }
-
-    // 2. 답변 섹션 처리
-    printf("--- Answers (%d) ---\n", ancount);
-    for (int i = 0; i < ancount; i++)
-    {
-        // 도메인 이름 해독
-        int read = dns_decode_name(packet, packet_len, offset, name, sizeof(name));
-        offset += read;
-
-        // 고정 필드(Type, Class, TTL, RDLength) 읽기
-        dns_rr_fixed_t *rr = (dns_rr_fixed_t *)(packet + offset);
-        uint16_t type = ntohs(rr->type);
-        uint16_t rdlen = ntohs(rr->rdlength);
-        offset += sizeof(dns_rr_fixed_t);
-
-        // A 레코드(IP 주소)인 경우 출력
-        if (type == DNS_TYPE_A && rdlen == 4)
-        {
-            uint8_t *ip = packet + offset;
-            printf("Name: %s -> IP: %d.%d.%d.%d\n", name, ip[0], ip[1], ip[2], ip[3]);
-        }
-
-        offset += rdlen; // 다음 레코드로 이동
-    }
-
-    return 0;
 }

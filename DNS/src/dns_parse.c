@@ -90,7 +90,7 @@ int parse_name(uint8_t *buffer, int offset, char *out, int *size)
 
     out[out_pos] = '\0';
 
-    printf("[DEBUG] Final parsed name: %s, Next offset in packet: %d\n", out, offset + bytes_read);
+    // printf("[DEBUG] Final parsed name: %s, Next offset in packet: %d\n", out, offset + bytes_read);
 
     return bytes_read;
 }
@@ -112,7 +112,7 @@ int parse_dns_response(uint8_t *buffer, int size,
     char name_buf[256];
 
     printf("\n--- [Section Parsing Start] ---\n");
-    printf("[DEBUG] size: %d\n", size);
+    // printf("[DEBUG] size: %d\n", size);
 
     /* QUESTION */
 

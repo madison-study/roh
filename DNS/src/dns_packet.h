@@ -95,25 +95,4 @@ int dns_encode_domain(
     );
 
 
-/* ===================== */
-/* Name Decoding */
-/* ===================== */
-
-int dns_decode_name(
-    const uint8_t *packet,
-    int packet_len,
-    int offset,
-    char *out,
-    int out_len);
-
-
-/* ===================== */
-/* Response Parser */
-/* ===================== */
-
-int dns_parse_response(
-    uint8_t *packet,
-    int packet_len);
-
-
 #endif

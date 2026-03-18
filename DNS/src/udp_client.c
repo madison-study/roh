@@ -28,7 +28,7 @@ int udp_send_query(
         perror("  [Socket Error]");
         return -1;
     }
-    printf("  [Debug] UDP Socket created (fd: %d)\n", sock);
+    // printf("  [Debug] UDP Socket created (fd: %d)\n", sock);
 
     // 2. 타임아웃 설정 (응답 없을 시 무한 대기 방지)
     struct timeval tv;
@@ -52,7 +52,7 @@ int udp_send_query(
     }
 
     // 4. 데이터 전송 시도
-    printf("  [Debug] Sending %d bytes to %s...\n", query_len, server_ip);
+    // printf("  [Debug] Sending %d bytes to %s...\n", query_len, server_ip);
     int sent = sendto(
         sock,
         query,
@@ -67,10 +67,10 @@ int udp_send_query(
         close(sock);
         return -1;
     }
-    printf("  [Debug] Successfully sent %d bytes.\n", sent);
+    // printf("  [Debug] Successfully sent %d bytes.\n", sent);
 
-    // 5. 데이터 수신 대기
-    printf("  [Debug] Waiting for response (timeout: 2s)...\n");
+    // // 5. 데이터 수신 대기
+    // printf("  [Debug] Waiting for response (timeout: 2s)...\n");
 
     // 중요: *response_len 대신 실제 버퍼 최대 크기(예: 512)를 넣어야 합니다.
     int received = recvfrom(
@@ -95,11 +95,11 @@ int udp_send_query(
         return -1;
     }
 
-    printf("  [Debug] Received %d bytes from server.\n", received);
-    printf("  [DEBUG] original res len: %d\n", *response_len);
+    // printf("  [Debug] Received %d bytes from server.\n", received);
+    // printf("  [DEBUG] original res len: %d\n", *response_len);
     *response_len = received;
-    printf("  [DEBUG] after res len: %d\n", *response_len);
+    // printf("  [DEBUG] after res len: %d\n", *response_len);
     close(sock);
-    printf("  [DEBUG] prepare ret\n");
+    // printf("  [DEBUG] prepare ret\n");
     return 0;
 }

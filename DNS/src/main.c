@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     printf("Resolving domain: %s...\n", target_domain);
 
     // resolver 레이어를 통해 IP 주소 획득
-    if (resolve_domain(target_domain, result_ip) == 0) {
+    if (resolve_domain(target_domain, result_ip, 0) == 0) {
         printf("Success! IP Address: %s\n", result_ip);
     } else {
         fprintf(stderr, "Error: Could not resolve domain '%s'\n", target_domain);
