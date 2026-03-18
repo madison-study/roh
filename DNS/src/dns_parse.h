@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "dns_packet.h"
 #include "nameserver.h"
+#define MAX_ANSWERS 10
 
 int parse_dns_response(
     uint8_t *buffer,
@@ -16,7 +17,8 @@ int parse_dns_response(
 int parse_name(
     uint8_t *buffer,
     int offset,
-    char *out
+    char *out,
+    int *size
 );
 
 #endif
