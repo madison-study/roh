@@ -59,7 +59,7 @@ int dns_decode_name(const uint8_t *packet, int packet_len, int offset, char *out
     int jumped = 0;
     int jumped_offset = 0;
     int bytes_read = 0;
-    printf("RR struct size: %lu\n", sizeof(dns_rr_fixed_t));
+
     while (packet[i] != 0)
     {
         // 압축 포인터 체크 (상위 2비트가 11인 경우)
