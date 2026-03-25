@@ -259,3 +259,27 @@ Querying authoritative server...
 Result:
 www.example.com → 93.184.216.34
 ```
+
+main
+ ↓
+resolver_lookup("google.com")
+ ↓
+dns_build_query()
+ ↓
+udp_send_query(root)
+ ↓
+dns_parse_response()
+ ↓
+NS = .com nameserver
+ ↓
+udp_send_query(.com server)
+ ↓
+dns_parse_response()
+ ↓
+NS = google authoritative
+ ↓
+udp_send_query(auth server)
+ ↓
+dns_parse_response()
+ ↓
+A record 반환
